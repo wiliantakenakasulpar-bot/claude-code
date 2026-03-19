@@ -1,0 +1,119 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      String   @default("user")
+  storeId   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  batches   Batch[]
+  vehicles  Vehicle[]
+  settings  UserSettings?
+
+  @@map("users")
+}
+
+model UserSettings {
+  id             String  @id @default(cuid())
+  userId         String  @unique
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  backgroundType String  @default("studio") // white | studio | outdoor
+  quality        String  @default("high")   // high | ultra
+  format         String  @default("jpg")    // jpg | png
+  autoOcr        Boolean @default(true)
+  autoProcess    Boolean @default(true)
+
+  @@map("user_settings")
+}
+
+model Batch {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  status          String   @default("processing") // processing | completed | partial | error
+  totalImages     Int      @default(0)
+  processedImages Int      @default(0)
+  errorImages     Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  images Image[]
+
+  @@map("batches")
+}
+
+model Vehicle {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plate     String?
+  model     String?
+  color     String?
+  year      Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  images Image[]
+
+  @@map("vehicles")
+}
+
+model Image {
+  id             String    @id @default(cuid())
+  userId         String
+  batchId        String?
+  batch          Batch?    @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  vehicleId      String?
+  vehicle        Vehicle?  @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  originalName   String
+  originalPath   String
+  processedPath  String?
+  thumbnailPath  String?
+  finalName      String?
+  plateDetected  String?
+  sequenceNumber Int?
+  status         String    @default("pending") // pending | queued | processing | completed | error
+  errorMessage   String?
+  fileSize       Int?
+  width          Int?
+  height         Int?
+  format         String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  processingJob ProcessingJob?
+
+  @@map("images")
+}
+
+model ProcessingJob {
+  id          String    @id @default(cuid())
+  imageId     String    @unique
+  image       Image     @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  jobId       String?
+  status      String    @default("queued") // queued | processing | completed | failed
+  progress    Int       @default(0)
+  step        String?
+  logs        String?
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("processing_jobs")
+}
