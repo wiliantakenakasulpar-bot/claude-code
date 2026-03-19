@@ -23,12 +23,6 @@ const nextConfig: NextConfig = {
     ],
     formats: ["image/avif", "image/webp"],
   },
-  api: {
-    bodyParser: {
-      sizeLimit: "100mb",
-    },
-    responseLimit: false,
-  },
 };
 
 export default nextConfig;
