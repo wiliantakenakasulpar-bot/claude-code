@@ -23,7 +23,7 @@ export async function GET(req: NextRequest, { params }: Params) {
     const { buffer, mimeType } = await getFileStream(filePath);
     const filename = path.basename(filePath);
 
-    return new NextResponse(buffer, {
+    return new NextResponse(new Uint8Array(buffer), {
       headers: {
         "Content-Type": mimeType,
         "Content-Length": buffer.length.toString(),

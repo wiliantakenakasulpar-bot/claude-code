@@ -1,14 +1,25 @@
 import { Queue, Worker, Job, QueueEvents } from "bullmq";
-import IORedis from "ioredis";
 
 const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
 
+function parseRedisUrl(url: string) {
+  try {
+    const parsed = new URL(url);
+    return {
+      host: parsed.hostname || "localhost",
+      port: parseInt(parsed.port || "6379", 10),
+      password: parsed.password || undefined,
+      maxRetriesPerRequest: null as null,
+      enableReadyCheck: false,
+    };
+  } catch {
+    return { host: "localhost", port: 6379, maxRetriesPerRequest: null as null, enableReadyCheck: false };
+  }
+}
+
 // Parse Redis URL
-function getRedisConnection(): IORedis {
-  return new IORedis(REDIS_URL, {
-    maxRetriesPerRequest: null,
-    enableReadyCheck: false,
-  });
+function getRedisConnection() {
+  return parseRedisUrl(REDIS_URL);
 }
 
 export const QUEUE_NAME = "image-processing";

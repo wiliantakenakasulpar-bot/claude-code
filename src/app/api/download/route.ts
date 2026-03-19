@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
     const ext = filePath.split(".").pop() || "jpg";
     const mimeType = ext === "png" ? "image/png" : "image/jpeg";
 
-    return new NextResponse(buffer, {
+    return new NextResponse(new Uint8Array(buffer), {
       headers: {
         "Content-Type": mimeType,
         "Content-Disposition": `attachment; filename="${filename}"`,
@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
       ? `veiculo_${images[0]?.plateDetected || vehicleId.slice(-8)}.zip`
       : `imagens_${Date.now()}.zip`;
 
-    return new NextResponse(zipBuffer, {
+    return new NextResponse(new Uint8Array(zipBuffer), {
       headers: {
         "Content-Type": "application/zip",
         "Content-Disposition": `attachment; filename="${zipName}"`,

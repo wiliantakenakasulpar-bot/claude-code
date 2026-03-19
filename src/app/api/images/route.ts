@@ -113,14 +113,14 @@ export async function POST(req: NextRequest) {
         ) {
           try {
             const heicConvert = (await import("heic-convert")).default;
-            buffer = await heicConvert({
+            buffer = Buffer.from(await heicConvert({
               buffer,
               format: "JPEG",
               quality: 0.95,
-            });
+            }));
           } catch {
             // If heic-convert fails, try with sharp
-            buffer = await sharp(buffer).jpeg().toBuffer();
+            buffer = Buffer.from(await sharp(buffer).jpeg().toBuffer());
           }
         }
 

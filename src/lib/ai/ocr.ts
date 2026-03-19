@@ -23,7 +23,7 @@ async function detectWithPlateRecognizer(imageBuffer: Buffer): Promise<PlateDete
   if (!apiKey) throw new Error("Plate Recognizer API key not configured");
 
   const formData = new FormData();
-  const blob = new Blob([imageBuffer], { type: "image/jpeg" });
+  const blob = new Blob([new Uint8Array(imageBuffer)], { type: "image/jpeg" });
   formData.append("upload", blob, "plate.jpg");
   formData.append("regions", "br"); // Brazil
 
